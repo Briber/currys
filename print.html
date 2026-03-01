@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Print Contract Calculation</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <style>
+        @font-face {
+            font-family: 'CurrysSans';
+            src: url('fonts/CurrysSans-Regular.woff2') format('woff2'),
+                 url('fonts/CurrysSans-Regular.woff') format('woff');
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'CurrysSans';
+            src: url('fonts/CurrysSans-Headline.woff2') format('woff2'),
+                 url('fonts/CurrysSans-Headline.woff') format('woff');
+            font-weight: 700;
+        }
+        body {
+            font-family: 'CurrysSans', 'Inter', sans-serif;
+            background-color: white;
+            color: black;
+            padding: 2cm;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        @media print {
+            body { 
+                padding: 0; 
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .no-print { display: none !important; }
+        }
+        .currys-primary { color: #5112A8; }
+        .currys-secondary { color: #E61571; }
+        .currys-bg-primary { background-color: #5112A8; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
+        th, td { padding: 0.75rem; border-bottom: 1px solid #e2e8f0; text-align: left; }
+        th { font-weight: bold; background-color: #f8fafc; width: 60%; }
+        .total-row th, .total-row td { font-weight: bold; font-size: 1.125rem; background-color: #f1f5f9; }
+    </style>
+</head>
+<body>
+    <div class="flex justify-between items-center border-b-2 border-[#5112A8] pb-4 mb-4">
+        <div class="flex items-center gap-4">
+            <img src="currys_logo.png" alt="Currys Logo" class="w-16 h-16 object-contain">
+            <div>
+                <h1 class="text-2xl font-bold currys-primary">Contract Calculator Results</h1>
+            </div>
+        </div>
+        <div class="text-right">
+            <p class="text-sm text-gray-500" id="date-display"></p>
+            <button class="no-print mt-2 bg-[#5112A8] hover:bg-[#3a0d78] text-white py-2 px-6 rounded-lg font-semibold shadow" onclick="window.print()">Print Document</button>
+        </div>
+    </div>
+    
+    <div class="mb-8">
+        <p class="text-2xl font-bold text-gray-500" id="colleague-display">Prepared by: </p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-8">
+        <div id="print-sim-section" class="p-6 rounded-2xl border-4 border-transparent transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="p-sim-title" class="text-xl font-bold currys-primary m-0">SIM Only (24 Months)</h2>
+                <img id="p-sim-network-logo" src="" alt="Network Logo" class="h-8 object-contain hidden">
+            </div>
+            <table>
+                <tr>
+                    <th>SIM Per Month</th>
+                    <td id="p-sim-monthly"></td>
+                </tr>
+                <tr>
+                    <th>Handset Outright Cost</th>
+                    <td id="p-sim-handset"></td>
+                </tr>
+                <!-- Spacer rows to vertically align the totals with the right-side table -->
+                <tr class="border-transparent">
+                    <td class="border-transparent py-3">&nbsp;</td>
+                    <td class="border-transparent py-3">&nbsp;</td>
+                </tr>
+                <tr class="border-transparent">
+                    <td class="border-transparent py-3">&nbsp;</td>
+                    <td class="border-transparent py-3">&nbsp;</td>
+                </tr>
+                <tr class="total-row border-t border-slate-200">
+                    <th>Total (24 Months)</th>
+                    <td id="p-sim-total"></td>
+                </tr>
+                <tr>
+                    <th>Effective Monthly Cost</th>
+                    <td id="p-sim-effective"></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div id="print-contract-section" class="p-6 rounded-2xl border-4 border-transparent transition-all">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h2 class="text-xl font-bold currys-primary m-0">24 Month Contract</h2>
+                    <p class="text-sm text-gray-500 mt-1">including handset</p>
+                </div>
+                <img id="p-network-logo" src="" alt="Network Logo" class="h-8 object-contain hidden">
+            </div>
+            <table>
+                <tr>
+                    <th>Initial Monthly Cost</th>
+                    <td id="p-contract-monthly"></td>
+                </tr>
+                <tr>
+                    <th>Price from April 2026</th>
+                    <td id="p-contract-2026"></td>
+                </tr>
+                <tr>
+                    <th>Price from April 2027</th>
+                    <td id="p-contract-2027"></td>
+                </tr>
+                <tr>
+                    <th>Upfront Cost</th>
+                    <td id="p-contract-upfront"></td>
+                </tr>
+                <tr class="total-row">
+                    <th>Total (24 Months)</th>
+                    <td id="p-contract-total"></td>
+                </tr>
+                <tr>
+                    <th>Effective Monthly Cost</th>
+                    <td id="p-contract-effective"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-8 border-2 border-[#5112A8] rounded-xl p-8 bg-gray-50 text-center">
+        <h2 class="text-2xl font-bold mb-6 currys-primary">Comparison Summary</h2>
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div>
+                <p class="text-gray-500 uppercase tracking-wide text-sm font-semibold">Total 24-Month Saving</p>
+                <p class="text-4xl font-bold currys-secondary mt-2" id="p-total-saving"></p>
+            </div>
+            <div>
+                <p class="text-gray-500 uppercase tracking-wide text-sm font-semibold">Average Monthly Saving</p>
+                <p class="text-4xl font-bold currys-secondary mt-2" id="p-monthly-saving"></p>
+            </div>
+        </div>
+        <div class="inline-block mt-4 text-xl font-bold px-6 py-3 bg-[#5112A8] text-white rounded-lg shadow-md" id="p-verdict"></div>
+        <p class="mt-8 text-sm text-gray-400 italic font-medium">We work hard to keep our prices competitive, but because market costs can shift daily, we can only guarantee this specific quote for today. Please check back with us if you plan to finalise your contract tomorrow or later to reconfirm the price.</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dataStr = sessionStorage.getItem('printData');
+            if (dataStr) {
+                const data = JSON.parse(dataStr);
+                
+                if (data.simTab === 'current') {
+                    document.getElementById('p-sim-title').textContent = 'Device and staying with existing provider';
+                }
+
+                document.getElementById('colleague-display').textContent = 'Prepared by: ' + (data.colleagueName || 'Colleague');
+                document.getElementById('p-sim-monthly').textContent = '£' + data.simMonthly;
+                document.getElementById('p-sim-handset').textContent = '£' + data.simHandset;
+                document.getElementById('p-sim-total').textContent = data.simTotal;
+                document.getElementById('p-sim-effective').textContent = data.simEffective;
+                
+                document.getElementById('p-contract-monthly').textContent = '£' + data.contractMonthly;
+                document.getElementById('p-contract-2026').textContent = '£' + data.contract2026;
+                document.getElementById('p-contract-2027').textContent = '£' + data.contract2027;
+                document.getElementById('p-contract-upfront').textContent = '£' + data.contractUpfront;
+                document.getElementById('p-contract-total').textContent = data.contractTotal;
+                document.getElementById('p-contract-effective').textContent = data.contractEffective;
+                
+                if (data.simNetworkLogo) {
+                    const logoImg = document.getElementById('p-sim-network-logo');
+                    const simLogoMap = {
+                        'vodafone': 'vodafone_logo.png',
+                        'idmobile': 'id_mobile_logo.png',
+                        'sky': 'sky_mobile_logo.jpg',
+                        'tesco': 'tesco_mobile_logo.png',
+                        'three': 'three_logo.jpg',
+                        'ee': 'ee_logo.jpg',
+                        'giffgaff': 'giffgaff_logo.png',
+                        'lebara': 'lebara_logo.png'
+                    };
+                    logoImg.src = simLogoMap[data.simNetworkLogo] || 'id_mobile_logo.png';
+                    
+                    if (data.simNetworkLogo === 'vodafone') {
+                        logoImg.classList.replace('h-8', 'h-16');
+                    } else if (data.simNetworkLogo === 'idmobile' || data.simNetworkLogo === 'giffgaff') {
+                        logoImg.classList.replace('h-16', 'h-8');
+                    } else {
+                        // general sizing for the other logos
+                        logoImg.classList.replace('h-16', 'h-8');
+                        logoImg.classList.add('mix-blend-multiply');
+                    }
+                    logoImg.classList.remove('hidden');
+                }
+                
+                if (data.contractNetworkLogo) {
+                    const logoImg = document.getElementById('p-network-logo');
+                    logoImg.src = data.contractNetworkLogo === 'vodafone' ? 'vodafone_logo.png' : 'id_mobile_logo.png';
+                    if (data.contractNetworkLogo === 'vodafone') {
+                        logoImg.classList.replace('h-8', 'h-16');
+                    } else {
+                        logoImg.classList.replace('h-16', 'h-8');
+                    }
+                    logoImg.classList.remove('hidden');
+                }
+
+                document.getElementById('p-total-saving').textContent = data.totalSaving;
+                document.getElementById('p-monthly-saving').textContent = data.monthlySaving;
+                document.getElementById('p-verdict').textContent = data.verdict;
+
+                if (data.verdict.includes('SIM Only')) {
+                    const el = document.getElementById('print-sim-section');
+                    el.classList.remove('border-transparent');
+                    el.classList.add('border-green-500', 'bg-green-50/50');
+                } else if (data.verdict.includes('Contract')) {
+                    const el = document.getElementById('print-contract-section');
+                    el.classList.remove('border-transparent');
+                    el.classList.add('border-green-500', 'bg-green-50/50');
+                }
+            } else {
+                document.getElementById('colleague-display').textContent = 'Prepared by: [Not Set]';
+                document.getElementById('p-verdict').textContent = 'Please generate from calculator first.';
+            }
+            
+            const now = new Date();
+            document.getElementById('date-display').textContent = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        });
+    </script>
+</body>
+</html>
